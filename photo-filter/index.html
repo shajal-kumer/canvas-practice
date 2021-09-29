@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Javascript Photo Filter App</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<main>
+			<canvas id="canvas"></canvas>
+		</main>
+		<aside>
+			<div class="upload-wrapper">
+				<label for="uploader">Select File</label>
+				<input type="file" id="uploader" />
+			</div>
+			<div class="effects">
+				<button>Grayscale</button>
+				<button>Sepia</button>
+				<button>Invert</button>
+				<button>RGB - RBG</button>
+				<button>RGB - BGR</button>
+				<button>RGB - GBR</button>
+				<button>RGB - GRB</button>
+			</div>
+			<div class="controls">
+				<button>Clear</button>
+				<button>Download</button>
+			</div>
+		</aside>
+		<script src="main.js"></script>
+	</body>
+</html>

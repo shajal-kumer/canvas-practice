@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Canvas Crush Course </title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+    
+            <h1>Simple Canvas Drawing App</h1>
+            <div class="styles-wrap">
+                <div class="colors">
+                    <h3>Choose stroke color</h3>
+                    <span data-color="red" class="red color"></span>
+                    <span data-color="green" class="green color"></span>
+                    <span data-color="blue" class="blue color"></span>
+                </div>
+
+                <div class="stroke-size">
+                    <h3>Choose Stroke Size</h3>
+                    <input type="range" step="5" value="5" min="0" max="50"
+                        class="stroke-size">
+                </div>
+
+                <button class="clear">Clear drawing</button>
+            </div>
+     
+        <canvas id="canvas"></canvas>
+
+
+
+        <script src="script.js"></script>
+    </body>
+
+</html>

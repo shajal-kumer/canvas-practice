@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Fabric.js Practice</title>
+	</head>
+	<body>
+		<canvas id="c"></canvas>
+		<button id="crop">Crop</button>
+		<button id="startCrop" style="border: 1px solid #000000">Mark Crop Area</button>
+		<br />
+		<canvas style="visibility: hidden" id="canvas_crop"></canvas>
+		<img src="./dog.jpg" class="image" alt="" style="display: none" />
+		<script src="./jquery.min.js"></script>
+		<script src="fabric.min.js"></script>
+		<script>
+			var canvas = new fabric.Canvas("c", {
+				width: 1500,
+				height: 800,
+				strokeWidth: 5,
+				stroke: "rgba(100,200,200,0.5)",
+			});
+
+			var el;
+			var object, lastActive;
+			var selection_object_left = 0;
+			var selection_object_top = 0;
+			var isCropping = false;
+
+			$(document).ready(function () {
+				$("button#crop").hide();
+				// let img = new fabric.Image.fromURL("http://fabricjs.com/assets/pug_small.jpg", function (img) {
+				// 	img.set("selectable", true);
+				// 	img.set("left", getObjLeft(img.width));
+				// 	img.set("top", getObjTop(img.height));
+				// 	img.crossOrigin = "anonymous";
+				// 	canvas.add(img);
+				// 	canvas.selection = false;
+				// 	canvas.renderAll();
+				// });
+
+				const dogImg = document.querySelector(".image");
+
+				img = new fabric.Image(dogImg, {
+					selectable: true,
+					left: getObjLeft(dogImg.width),
+					top: getObjTop(dogImg.height),
+				});
+
+				canvas.add(img);
+				canvas.setActiveObject(img);
+				canvas.renderAll();
+			});
+
+			$("#startCrop").on("click", function () {
+				canvas.remove(el);
+				if (canvas.getActiveObject()) {
+					if (canvas.getActiveObject().type == "sprite") {
+						alert("The selected object cannot be cropped.");
+						return;
+					}
+					object = canvas.getActiveObject();
+					if (lastActive !== object) {
+						console.log("different object");
+					} else {
+						console.log("same object");
+					}
+					if (lastActive && lastActive !== object) {
+						lastActive.clipTo = null;
+					}
+
+					//Generate a rectangle with the same size as the element to be cropped and use it to select the crop area
+					el = new fabric.Rect({
+						fill: "rgba(0,0,0,0)",
+						originX: "left",
+						originY: "top",
+						stroke: "red",
+						//strokeDashArray: [2, 2],
+						strokWidth: 10,
+						//opacity: 1,
+						width: 1,
+						height: 1,
+						borderColor: "red",
+						cornerColor: "green",
+						hasRotatingPoint: false,
+						selectable: true,
+					});
+
+					selection_object_left = canvas.getActiveObject().left;
+					el.left = selection_object_left + 50;
+
+					selection_object_top = canvas.getActiveObject().top;
+					el.top = selection_object_top + 50;
+
+					el.width = canvas.getActiveObject().width * canvas.getActiveObject().scaleX - 100;
+					el.height = canvas.getActiveObject().height * canvas.getActiveObject().scaleY - 100;
+
+					canvas.add(el);
+					canvas.setActiveObject(el);
+					for (var i = 0; i < $("#layers li").length; i++) {
+						canvas.item(i).selectable = false;
+					}
+					$("button#crop").show();
+				} else {
+					alert("Please select an element.");
+				}
+
+				isCropping = true;
+			});
+
+			$("#crop").on("click", function (event) {
+				$("button#crop").hide();
+				if (!isCropping) {
+					alert("Please select the crop area first.");
+					return;
+				}
+
+				// var left = el.left - object.left;
+				// var top = el.top - object.top;
+
+				// left *= 1;
+				// top *= 1;
+
+				let width = el.width;
+				let height = el.height;
+
+				//Export the current frame to a new canvas and perform cropping, during which time the recording history is suspended.
+				cropImage(object, el.left, el.top, parseInt(el.scaleY * height), parseInt(width * el.scaleX));
+				for (var i = 0; i < $("#layers li").length; i++) {
+					canvas.item(i).selectable = true;
+				}
+				disabled = true;
+
+				canvas.remove(object);
+				canvas.remove(canvas.getActiveObject());
+				lastActive = object;
+				canvas.renderAll();
+
+				isCropping = false;
+			});
+
+			function cropImage(obj, elLeft, elTop, elHeight, elWidth) {
+				// if el height greater than obj
+				// fit el to obj
+				if (elTop < obj.top) {
+					elHeight = elHeight - (obj.top - elTop);
+					elTop = obj.top;
+				}
+				// if el width greater than obj
+				// fit el to obj
+				if (elLeft < obj.left) {
+					elWidth = elWidth - (obj.left - elLeft);
+					elLeft = obj.left;
+				}
+
+				if (elTop + elHeight > obj.top + obj.height * obj.scaleY)
+					elHeight = obj.top + obj.height * obj.scaleY - elTop;
+				if (elLeft + elWidth > obj.left + obj.width * obj.scaleX)
+					elWidth = obj.left + obj.width * obj.scaleX - elLeft;
+
+				var canvas_crop = new fabric.Canvas("canvas_crop");
+
+				// console.log(canvas.toDataURL(png));
+				fabric.Image.fromURL(canvas.toDataURL(), function (img) {
+					img.set("left", -elLeft);
+					img.set("top", -elTop);
+					canvas_crop.add(img);
+					canvas_crop.setHeight(elHeight);
+					canvas_crop.setWidth(elWidth);
+					canvas_crop.renderAll();
+					fabric.Image.fromURL(canvas_crop.toDataURL(), function (croppedImg) {
+						croppedImg.set("left", elLeft);
+						croppedImg.set("top", elTop);
+						canvas.add(croppedImg).renderAll();
+					});
+				});
+			}
+
+			function getObjLeft(objWidth) {
+				return canvas.getWidth() / 2 - objWidth / 2;
+			}
+
+			function getObjTop(objHeight) {
+				return canvas.getHeight() / 2 - objHeight / 2;
+			}
+		</script>
+	</body>
+</html>

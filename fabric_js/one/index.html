@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Fabric.js Practice</title>
+	</head>
+	<body>
+		<canvas id="c"></canvas>
+		<script src="fabric.min.js"></script>
+		<script>
+			const canvas = new fabric.Canvas("c", { width: 800, height: 500, selection: true });
+
+			const rect = new fabric.Rect({
+				left: 80,
+				top: 100,
+				width: 50,
+				height: 150,
+				strokeWidth: 5,
+				strokeDashArray: [5, 5],
+				stroke: "red",
+			});
+
+			canvas.add(new fabric.Circle({ radius: 30, fill: "#f55", top: 150, left: 50 }));
+
+			canvas.add(rect);
+
+			canvas.backgroundColor = "rgba(0,0,255,0.3)";
+			canvas.renderAll();
+		</script>
+	</body>
+</html>
